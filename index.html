@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <title>diffdecks.com</title>
+</head>
+<body>
+        <h1>diffdecks.com </h1>
+        <p>Enter your two decklists below and click the "Diff" button to see the differences:</p>
+
+        <div>
+                <label for="array1">Deck 1:</label>
+                <textarea id="array1" rows="10" cols="50"></textarea>
+                <label for="array2">Deck 2:</label>
+                <textarea id="array2" rows="10" cols="50"></textarea>
+        </div>
+
+        <div>
+                <button id="diffButton" onclick="displayDiff()">Diff</button>
+        </div>
+
+        <div id="diff"></div>
+
+        <script>
+                function countAndLowercase(text) {
+                        const counts = {};
+                        text.toLowerCase().split('\n').forEach(line => {
+                                const trimmedLine = line.trim();
+                                if (trimmedLine) {
+                                        const count = parseInt(trimmedLine.split(' ')[0], 10);
+                                        const cardName = trimmedLine.split(' ').slice(1).join(' ');
+                                        counts[cardName] = (counts[cardName] || 0) + count;
+                                }
+                        });
+                        return counts;
+                }
+
+                function diffArrays(array1, array2) {
+                        const counts1 = countAndLowercase(array1);
+                        const counts2 = countAndLowercase(array2);
+
+                        const diff = [];
+
+                        for (const cardName in counts1) {
+                                if (counts1.hasOwnProperty(cardName)) {
+                                        const count1 = counts1[cardName];
+                                        const count2 = counts2[cardName] || 0;
+                                        if (count1 > count2) {
+                                                diff.push(`-${count1 - count2} ${cardName}`);
+                                        } else if (count2 > count1) {
+                                                diff.push(`+${count2 - count1} ${cardName}`);
+                                        }
+                                }
+                        }
+
+                        for (const cardName in counts2) {
+                                if (counts2.hasOwnProperty(cardName) && !counts1.hasOwnProperty(cardName)) {
+                                        const count2 = counts2[cardName];
+                                        diff.push(`+${count2} ${cardName}`);
+                                }
+                        }
+      diff.sort()
+                        return diff.join('\n');
+                }
+
+                function displayDiff() {
+                        const array1 = document.getElementById("array1").value;
+                        const array2 = document.getElementById("array2").value;
+                        const diff = diffArrays(array1, array2);
+                        const diffDiv = document.getElementById("diff");
+                        diffDiv.innerHTML = '';
+
+                        diff.split('\n').forEach(line => {
+                                if (line.startsWith('+')) {
+                                        diffDiv.innerHTML += `<span style="color:green">${line}<br></span>`;
+                                } else if (line.startsWith('-')) {
+                                        diffDiv.innerHTML += `<span style="color:red">${line}<br></span>`;
+                                }
+                        });
+                }
+        </script>
+</body>
+</html>
+
