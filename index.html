@@ -22,18 +22,29 @@
 
         <script>
                 function countAndLowercase(text) {
-                        const counts = {};
-                        text.toLowerCase().split('\n').forEach(line => {
-                                const trimmedLine = line.trim();
-                                if (trimmedLine) {
-                                        const count = parseInt(trimmedLine.split(' ')[0], 10);
-                                        const cardName = trimmedLine.split(' ').slice(1).join(' ');
-                                        counts[cardName] = (counts[cardName] || 0) + count;
+                    const counts = {};
+                    text.toLowerCase().split('\n').forEach(line => {
+                        const trimmedLine = line.trim();
+                        if (trimmedLine) {
+                            let count = 1;
+                            let cardName = trimmedLine;
+                            const spaceIndex = trimmedLine.indexOf(' ');
+                            if (spaceIndex !== -1) {
+                                const prefix = trimmedLine.substring(0, spaceIndex);
+                                if (!isNaN(parseInt(prefix))) {
+                                    count = parseInt(prefix);
+                                    cardName = trimmedLine.substring(spaceIndex + 1);
+                                } else if (prefix.match(/^\d+x?$/i)) {
+                                    count = parseInt(prefix, 10);
+                                    cardName = trimmedLine.substring(spaceIndex + 1);
                                 }
-                        });
-                        return counts;
+                            }
+                            counts[cardName] = (counts[cardName] || 0) + count;
+                        }
+                    });
+                    return counts;
                 }
-
+                
                 function diffArrays(array1, array2) {
                         const counts1 = countAndLowercase(array1);
                         const counts2 = countAndLowercase(array2);
